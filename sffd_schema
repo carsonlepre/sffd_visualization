@@ -1,0 +1,12 @@
+CREATE TABLE "sffd" (
+	"report_id" varchar(100),
+	"incident_number" INTEGER,
+	"unit_id" varchar(10),
+	"date"	date,
+	"dispatch_time"	varchar(100),
+	"on_scene_time"	varchar(100),
+	"available_time" varchar(100),
+	"priority"	integer,
+	"location"	varchar(255),
+	primary key("report_id")
+);
