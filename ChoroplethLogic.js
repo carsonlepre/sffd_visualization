@@ -26,7 +26,7 @@ d3.json(APILink, function(data) {
     // Define what  property in the features to use
     valueProperty: "Property FIELDNAME",
 
-    // Set color scale
+    // Set color scale.Dark red to light cream
     scale: ["#ffffb2", "#b10026"],
 
     // Number of breaks in step range
@@ -57,7 +57,7 @@ d3.json(APILink, function(data) {
     var labels = [];
 
     // Add min & max
-    var legendInfo = "<h1>Median Income</h1>" +
+    var legendInfo = "<h1>Average Response Time</h1>" +
       "<div class=\"labels\">" +
         "<div class=\"min\">" + limits[0] + "</div>" +
         "<div class=\"max\">" + limits[limits.length - 1] + "</div>" +
