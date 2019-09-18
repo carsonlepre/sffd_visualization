@@ -89,6 +89,10 @@ function addMap(day,initial) {
   });
 }
 
+myMap.eachLayer(function (layer) {
+  myMap.removeLayer(layer);
+});
+
   // Adding a tile layer (the background map image) to our map
   // We use the addTo method to add objects to our map
   L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
@@ -118,10 +122,14 @@ var url = `/day_of_week_area/${day}`;
     var yValues = data.calls;
 
     // TODO (populate the dictionary)
+    // var minColor = 0;
+    // var maxColor = 0;
     for (i = 0; i < data.station_area.length; ++i) {
+      if (data.calls[i] < minColor) {minColor = data.calls[i]}
+      if (data.calls[i] > maxColor) {maxColor = data.calls[i]}
       areaToValue[data.station_area[i]] = data.calls[i];
     }
-  
+ 
     L.geoJson(areaData2, {style: style}).addTo(myMap);
 
     // var graphDiv = document.getElementById('daily_chart') 
@@ -155,15 +163,27 @@ var url = `/day_of_week_area/${day}`;
 
  function getColor(d) {
    q = areaToValue[d];
+   var r = (q-minColor)/(maxColor-minColor) 
+ return       r > .9 ? '#800000' :
+              r > .8 ? '#8E1C18' :
+              r > .7 ? '#9C3831' :
+              r > .6 ? '#AA554A' :
+              r > .5 ? '#B87163' :
+              r > .4 ? '#C68D7C' :
+              r > .3 ? '#D4AA95' :
+              r > .2 ? '#E2C6AE' :
+              r > .1 ? '#F0E2C7' :
+                       '#FFFFE0' ;
+                      
 
-   return     q > 700 ? '#800026' :
-              q > 600 ? '#BD0026' :
-              q > 500  ? '#E31A1C' :
-              q > 400  ? '#FC4E2A' :
-              q > 300 ? '#FD8D3C' :
-              q > 200 ? '#FEB24C' :
-              q > 100   ? '#FED976' :
-                      '#FFEDA0';
+  //  return     q > 700 ? '#800026' :
+  //             q > 600 ? '#BD0026' :
+  //             q > 500  ? '#E31A1C' :
+  //             q > 400  ? '#FC4E2A' :
+  //             q > 300 ? '#FD8D3C' :
+  //             q > 200 ? '#FEB24C' :
+  //             q > 100   ? '#FED976' :
+  //                     '#FFEDA0';
    }
   
 
@@ -173,7 +193,7 @@ function style(feature) {
 		weight: 2,
 		opacity: 1,
 		color: 'white',
-		fillOpacity: 0.7
+		fillOpacity: 0.6
 	};
 }
 
