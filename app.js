@@ -19,7 +19,7 @@ function buildCharts(day) {
     Plotly.newPlot(graphDiv, data);
  
   });
-  
+
 ///////////////////////////////////////////////////
   var url = `/day_of_week_area/${day}`;
   d3.json(url).then(function(data) {
@@ -36,54 +36,64 @@ function buildCharts(day) {
     ];
     var graphDiv = document.getElementById('daily_chart') 
     Plotly.newPlot(graphDiv, data);
-
+  
 });
 
 
 };
 
 function init() {
-  // Grab a reference to the dropdown select element
-  var selector = d3.select("#selDataset");
-  var sampleNames = [1,2,3,4,5,6,7];
-  
-    sampleNames.forEach((sample) => {
-      selector
-        .append("option")
-        .text(sample)
-        .property("value", sample);
-    });
+
+  var dayofWeek;
+  // var hourofDay;
  
-    // Use the first sample from the list to build the initial plots
+  d3.selectAll("input[name='options']").on("change", function(){
+    dayofWeek = this.id
+    });
+  
+  
+
+  // d3.selectAll("#ex16a").on("change", function(){
+  //   hourofDay = this.value
+  //    });
+
+
+// For non-getter methods, you can chain together commands
+
+
+      // Use the first sample from the list to build the initial plots
     const firstDay = 1;
     buildCharts(firstDay);
-    addMap(firstDay);
+    addMap(firstDay,"Y");
 
   //  buildMetadata(firstSample);
 };
 
-function optionChanged(newSample) {
+function optionChanged(dayofWeek) {
   // Fetch new data each time a new sample is selected
-  buildCharts(newSample);
-  addMap(newSample);
+
+  buildCharts(dayofWeek);
+  addMap(dayofWeek,"N");
 }
 
-function initCap (str) {
-  return (str.charAt(0).toUpperCase() + str.slice(1).toLowerCase());
-};
 
-function addMap(day) {
-
-  var myMap = L.map("map", {
+function addMap(day,initial) {
+ 
+  // document.getElementById("map").outerHTML = "";
+   
+ 
+ if (initial == "Y")  {
+    myMap = new L.map("map", {
     center: [37.7749, -122.4194],
     zoom: 13
   });
-  
+}
+
   // Adding a tile layer (the background map image) to our map
   // We use the addTo method to add objects to our map
   L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
     attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
-    maxZoom: 18,
+    maxZoom: 20,
     id: "mapbox.streets",
     accessToken: API_KEY
   }).addTo(myMap);
@@ -99,7 +109,37 @@ var marker = L.marker([37.7749, -122.4194], {
 
 //////////////////////////////////////////////////
 
- 
+// var areaToValue = {};
+
+var url = `/day_of_week_area/${day}`;
+  d3.json(url).then(function(data) {
+
+    var xValues = data.station_area;
+    var yValues = data.calls;
+
+    // TODO (populate the dictionary)
+    for (i = 0; i < data.station_area.length; ++i) {
+      areaToValue[data.station_area[i]] = data.calls[i];
+    }
+  
+    L.geoJson(areaData2, {style: style}).addTo(myMap);
+
+    // var graphDiv = document.getElementById('daily_chart') 
+    // var plotData = [
+    //   {
+    //     x: xValues,
+    //     y: yValues,
+    //     type: 'bar'
+    //   }
+    // ];
+    // Plotly.newPlot(graphDiv, plotData);
+
+});
+
+
+//////////////////////////////////////////////////
+
+
  L.geoJson(areaData2).addTo(myMap);
 
   // var url = `/day_of_week_total_area/${day}`;
@@ -107,23 +147,25 @@ var marker = L.marker([37.7749, -122.4194], {
   // jsonObject = JSON.parse(url);
   // console.log(jsonObject);
      
- L.geoJson(areaData2, {style: style}).addTo(myMap);
+ // L.geoJson(areaData2, {style: style}).addTo(myMap);
 // update geoJson based on results of query
 
 };
 
 
-function getColor(d) {
-  // update color based on results of query
-	return d > 40 ? '#800026' :
-	       d > 35 ? '#BD0026' :
-	       d > 30  ? '#E31A1C' :
-	       d > 25  ? '#FC4E2A' :
-	       d > 20  ? '#FD8D3C' :
-	       d > 10  ? '#FEB24C' :
-	       d > 5   ? '#FED976' :
-                     '#FFEDA0';
-}
+ function getColor(d) {
+   q = areaToValue[d];
+
+   return     q > 700 ? '#800026' :
+              q > 600 ? '#BD0026' :
+              q > 500  ? '#E31A1C' :
+              q > 400  ? '#FC4E2A' :
+              q > 300 ? '#FD8D3C' :
+              q > 200 ? '#FEB24C' :
+              q > 100   ? '#FED976' :
+                      '#FFEDA0';
+   }
+  
 
 function style(feature) {
 	return {
