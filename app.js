@@ -44,9 +44,7 @@ function buildCharts(day) {
 
 function init() {
 
-  var dayofWeek;
-  // var hourofDay;
- 
+  
   d3.selectAll("input[name='options']").on("change", function(){
     dayofWeek = this.id
     });
@@ -62,29 +60,33 @@ function init() {
 
 
       // Use the first sample from the list to build the initial plots
-    const firstDay = 1;
-    buildCharts(firstDay);
-    addMap(firstDay,"Y");
+    buildCharts(dayofWeek);
+    addMap(dayofWeek,hourofDay,"Y");
 
   //  buildMetadata(firstSample);
 };
 
-function optionChanged(dayofWeek) {
-  // Fetch new data each time a new sample is selected
+function dayChanged(day) {
+  dayofWeek = day;
+}
 
-  buildCharts(dayofWeek);
-  addMap(dayofWeek,"N");
+function optionChanged() {
+  // Fetch new data each time a new sample is selected
+  hourofDay = document.getElementById('slider1').value;
+  // alert("onChanged day: "+dayofWeek+" hour: "+hourofDay)
+    buildCharts(dayofWeek);
+  addMap(dayofWeek,hourofDay,"N");
 }
 
 
-function addMap(day,initial) {
+function addMap(day,hour,initial) {
  
   // document.getElementById("map").outerHTML = "";
-   
+  // alert("onMap day: "+dayofWeek+" hour: "+hourofDay)
  
  if (initial == "Y")  {
     myMap = new L.map("map", {
-    center: [37.7749, -122.4194],
+    center: [37.76, -122.44],
     zoom: 13
   });
 }
@@ -92,6 +94,8 @@ function addMap(day,initial) {
 myMap.eachLayer(function (layer) {
   myMap.removeLayer(layer);
 });
+
+
 
   // Adding a tile layer (the background map image) to our map
   // We use the addTo method to add objects to our map
@@ -105,33 +109,82 @@ myMap.eachLayer(function (layer) {
 
 //Create a new marker
 // Pass in some initial options, and then add it to the map using the addTo method
-var marker = L.marker([37.7749, -122.4194], {
-  draggable: true,
-  title: "My First Marker"
-}).addTo(myMap);
+// var marker = L.marker([37.7749, -122.4194], {
+//   draggable: true,
+//   title: "My First Marker"
+// }).addTo(myMap);
 
 
 //////////////////////////////////////////////////
 
 // var areaToValue = {};
 
-var url = `/day_of_week_area/${day}`;
+// var hour = document.getElementById("slider1").value 
+if (document.getElementById("Choice1").checked) { 
+var url = `/map_calls/${day}/${hour}`;
+}
+else {
+  var url = `/map_responses/${day}/${hour}`; 
+}
+
   d3.json(url).then(function(data) {
 
     var xValues = data.station_area;
     var yValues = data.calls;
 
     // TODO (populate the dictionary)
-    // var minColor = 0;
-    // var maxColor = 0;
+    minColor = 0;
+    maxColor = 0;
+    
     for (i = 0; i < data.station_area.length; ++i) {
       if (data.calls[i] < minColor) {minColor = data.calls[i]}
       if (data.calls[i] > maxColor) {maxColor = data.calls[i]}
       areaToValue[data.station_area[i]] = data.calls[i];
     }
- 
+
     L.geoJson(areaData2, {style: style}).addTo(myMap);
 
+    
+    
+    /////////////////////////////////////////////////////
+   // delete myMap.legend; 
+    if (typeof (legend) != 'undefined') {
+      myMap.removeControl(legend);
+    }
+     
+    if (legend instanceof L.Control) { myMap.removeControl(legend)};  
+   
+    var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function (myMap) {
+var grades = [];
+  for (i = 0; i < 10; ++i) {
+    grades[i] = Math.round((minColor + (i / 11.0) * (maxColor-minColor))*100) / 100; 
+   }
+ 
+  var div = L.DomUtil.create('div', 'info legend'),
+  
+  grades,
+
+		labels = [];
+
+	// loop through our density intervals and generate a label with a colored square for each interval
+	for (var i = 0; i < grades.length; i++) {
+		div.innerHTML +=
+			'<i style="background-color:' + getColor(grades[i] + 1) + ';"></i> ' +
+			grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+	}
+ 
+	return div;
+};
+
+legend.addTo(myMap);
+    
+    
+    
+    
+    //////////////////////////////////////////////////////
+    
     // var graphDiv = document.getElementById('daily_chart') 
     // var plotData = [
     //   {
@@ -174,16 +227,8 @@ var url = `/day_of_week_area/${day}`;
               r > .2 ? '#E2C6AE' :
               r > .1 ? '#F0E2C7' :
                        '#FFFFE0' ;
-                      
+                   
 
-  //  return     q > 700 ? '#800026' :
-  //             q > 600 ? '#BD0026' :
-  //             q > 500  ? '#E31A1C' :
-  //             q > 400  ? '#FC4E2A' :
-  //             q > 300 ? '#FD8D3C' :
-  //             q > 200 ? '#FEB24C' :
-  //             q > 100   ? '#FED976' :
-  //                     '#FFEDA0';
    }
   
 

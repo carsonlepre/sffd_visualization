@@ -20,61 +20,130 @@
 </head>
 
 <body>
+    <style type="text/css">
+      .container {
+    margin-right: 0px; /* this is the exact culprit */
+    margin-left: 0px;
+    width: fit-content;
+}  
+
+  </style> 
 
   <div class="container">
-    <div class="row">
       <div class="col-md-12 jumbotron text-center">
-        <h1>Ambulance Response By Neighborhood/Day of Week</h1>
-        <p>Use the interactive charts below to explore the dataset</p>
+        <h1>SFFD Ambulance Response By Neighborhoods</h1>
+     </div>
+ 
+      <div class="col-md-8">
+            <div id="map" style="width: auto; height: 1050px"> </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-2">
+      
+      <div class="col-md-4">
         <div class="well">
-          <h5>SELECT Day of Week:</h5>
-          <select id="selDataset" onchange="optionChanged(this.value)"></select>
-        </div>
-        <div class="panel panel-primary">
-          <div class="panel-heading">
-            <h3 class="panel-title">Sample MetaData</h3>
+          <h5><strong>Day of Week:</strong> </h5>
+
+          <div id="daySelector" class="btn-group btn-group-toggle" data-toggle="buttons" >
+            <label class="btn btn-secondary active">
+              <input type="radio" name="options" id="1" autocomplete="off" onchange="dayChanged(this.id);optionChanged()" checked> Sun
+            </label>
+            <label class="btn btn-secondary">
+              <input type="radio" name="options" id="2" autocomplete="off" onchange="dayChanged(this.id);optionChanged()"> Mon
+            </label>
+            <label class="btn btn-secondary">
+              <input type="radio" name="options" id="3" autocomplete="off" onchange="dayChanged(this.id);optionChanged()"> Tue
+            </label>
+            <label class="btn btn-secondary">
+              <input type="radio" name="options" id="4" autocomplete="off" onchange="dayChanged(this.id);optionChanged()"> Wed
+            </label>
+            <label class="btn btn-secondary">
+              <input type="radio" name="options" id="5" autocomplete="off" onchange="dayChanged(this.id);optionChanged()"> Thu
+            </label>
+            <label class="btn btn-secondary">
+              <input type="radio" name="options" id="6" autocomplete="off" onchange="dayChanged(this.id);optionChanged()"> Fri
+            </label>
+            <label class="btn btn-secondary">
+              <input type="radio" name="options" id="7" autocomplete="off" onchange="dayChanged(this.id);optionChanged()"> Sat
+            </label>
           </div>
-          <div id="sample-metadata" class="panel-body"></div>
+   
+         
+<!-- 
+          <select id="selDataset" onchange="optionChanged(this.value)"></select> -->
+          <h5><strong>Selected Hour of Day&nbsp;(<label id="sHour"></label>)</strong></h5>
+          <input id="slider1" type="range" min="0" max="24" step="1" value="24" list="tickmarks" 
+                              onchange="optionChanged()"
+                              oninput="document.getElementById('sHour').innerHTML = this.value" />
+          <datalist id="tickmarks">
+            <option value= "0">label="00:00"></option>
+            <option value= "2"></option>
+            <option value= "4"></option>
+            <option value= "6">label="06:00"></option>
+            <option value= "8"></option>
+            <option value="10"></option>
+            <option value="12">label="12:00"></option>
+            <option value="14"></option>
+            <option value="16"></option>
+            <option value="18">label="18:00"></option>
+            <option value="20"></option>
+            <option value="22"></option>
+            <option value="24">label="All"></option>
+          </datalist>
+
+          <!-- <label id="sHour"></label>  -->
+
+          <h5><strong>Select chart type:</strong></h5>
+          <div>
+            <input type="radio" id="Choice1"
+             name="contact" value="Calls" checked onchange="optionChanged()">
+            <label for="Choice1">Calls</label>
+        
+            <input type="radio" id="Choice2"
+             name="contact" value="Response" onchange="optionChanged()">
+            <label for="Choice2">Response</label>
+       
+          </div>
+                   
+          <h5><strong>Chart By Hour</strong></h5>
+          <div id="hourly_chart"></div>
+          <h5><strong>Chart By Station Area</strong></h5>
+          <div id="daily_chart"></div>
+        
+          
+
+
         </div>
       </div>
-      <div class="col-md-5">
-        <div id="pie"></div>
-      </div>
-      <div class="col-md-5">
-        <div id="gauge"></div>
-      </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-12">
-      <div id="bubble"></div>
-    </div>
-  </div>
+      <!-- <div class="col-md-4">
+        <div class="well">
+          <h5>SELECT Hour of Day:</h5>
+          <select id="selHour" onchange="optionChanged(this.value)"></select>
+        </div>
+      </div> -->
+      <!-- <div class="col-md-4">
+        
+          <h5>Hourly Chart:</h5>
+          <div id="hourly_chart"></div>
+        </div>
+      
+      <div class="col-md-4">
+        
+          <h5>Calls by Station</h5>
+          <div id="daily_chart"></div>
+        </div>
+      
+    
+    </div> -->
+  
 
-  <div class="row">
-    <div class="col-md-12">
-      <div id="map" style="width: 600px; height: 400px"> </div>
-    </div>
-  </div>
 
-   <!-- <script type="text/javascript" src="static/js/config.js"></script> -->
-
-</div>
 
   <!-- <script src="https://cdn.plot.ly/plotly-1.31.2.min.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.js"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-  <!-- <script src="{{ url_for('static', filename='js/bonus.js') }}"></script> -->
-
-  <script src="{{ url_for('static', filename='js/choropleth.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/station_areas.js') }}"></script>
   <script src="{{ url_for('static', filename='js/config.js') }}"></script>
-
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 
 </html>

@@ -50,6 +50,50 @@ def day_of_week_area(day):
     }
     return jsonify(data)
 
+@app.route("/day_of_week_area_one/<day>/<area>")
+def day_of_week_area_one(day,area):
+
+    """Returns number of calls for one area and day of week."""
+    if (area == '27' or area == '30'):
+        return '0'
+    else:
+        sql = "select count(incident_number) calls from call_data where day_of_week = " + str(day) + " and station_area = " + str(area) + " group by day_of_week, station_area"
+        df = pd.read_sql_query(sql,con=engine)  
+        return str(df.iloc[0,0])
+
+@app.route("/map_calls/<day>/<hour>")
+def map_calls(day,hour):
+
+    """Returns number of calls for one area and day of week."""
+    if hour == '24':
+        sql = "select count(incident_number) calls, station_area from call_data where day_of_week = " + str(day) + " group by station_area"
+    else:    
+        sql = "select count(incident_number) calls, station_area from call_data where day_of_week = " + str(day) + " and hour = " + str(hour) + " group by station_area"
+    df = pd.read_sql_query(sql,con=engine)  
+
+    data = {
+        "station_area": df.station_area.values.tolist(),
+        "calls": df.calls.values.tolist(),
+    }
+    return jsonify(data)
+
+@app.route("/map_responses/<day>/<hour>")
+def map_responses(day,hour):
+
+    """Returns number of calls for one area and day of week."""
+    if hour == '24':
+        sql = "select (sum(case when response_time > 10 then 1.0 else 0 end))/count(incident_number) calls, station_area from call_data where day_of_week = " + str(day) + " and final_priority= 3 group by station_area"
+    else:    
+        sql = "select (sum(case when response_time > 10 then 1.0 else 0 end))/count(incident_number) calls, station_area from call_data where day_of_week = " + str(day) + " and final_priority= 3 and hour = " + str(hour) + " group by station_area"
+    df = pd.read_sql_query(sql,con=engine)  
+
+    data = {
+        "station_area": df.station_area.values.tolist(),
+        "calls": df.calls.values.tolist(),
+    }
+    return jsonify(data)
+
+
 @app.route("/total_calls")
 def total_calls():
 
